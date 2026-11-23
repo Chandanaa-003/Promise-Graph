@@ -9,6 +9,10 @@ import {
   AuthResponse,
   UpdateProfilePayload,
   ChangePasswordPayload,
+  ConnectedAccount,
+  WhatsAppChat,
+  GitHubRepo,
+  UnifiedMessage,
 } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
@@ -343,4 +347,160 @@ export async function triggerSeedData(): Promise<{ status: string; message: stri
     throw new Error('Failed to seed database');
   }
   return await res.json();
+}
+
+// ----------------------------------------------------
+// Integrations & External Sources API
+// ----------------------------------------------------
+
+export async function fetchConnectedAccounts(): Promise<ConnectedAccount[]> {
+  const url = `${API_BASE}/api/v1/integrations/accounts`;
+  try {
+    const res = await fetch(url, { headers: getAuthHeaders(), credentials: 'include' });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
+}
+
+export async function fetchGmailAuthUrl(): Promise<{ url: string; state: string; configured: boolean }> {
+  const url = `${API_BASE}/api/v1/integrations/gmail/auth-url`;
+  const res = await fetch(url, { headers: getAuthHeaders(), credentials: 'include' });
+  if (!res.ok) throw new Error('Failed to generate Gmail authorization URL');
+  return await res.json();
+}
+
+export async function syncGmailEmails(maxResults = 15): Promise<any> {
+  const url = `${API_BASE}/api/v1/integrations/gmail/sync`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ max_results: maxResults }),
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(errorBody.detail || 'Gmail synchronization failed.');
+  }
+  return await res.json();
+}
+
+export async function disconnectGmail(): Promise<void> {
+  const url = `${API_BASE}/api/v1/integrations/gmail`;
+  const res = await fetch(url, { method: 'DELETE', headers: getAuthHeaders(), credentials: 'include' });
+  if (!res.ok) throw new Error('Failed to disconnect Gmail');
+}
+
+export async function importWhatsAppChat(file: File, title?: string): Promise<any> {
+  const url = `${API_BASE}/api/v1/integrations/whatsapp/import`;
+  const formData = new FormData();
+  formData.append('file', file);
+  if (title) formData.append('title', title);
+
+  const headers = getAuthHeaders() as Record<string, string>;
+  delete headers['Content-Type'];
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers,
+    body: formData,
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(errorBody.detail || 'WhatsApp import failed.');
+  }
+  return await res.json();
+}
+
+export async function fetchWhatsAppChats(): Promise<WhatsAppChat[]> {
+  const url = `${API_BASE}/api/v1/integrations/whatsapp/chats`;
+  try {
+    const res = await fetch(url, { headers: getAuthHeaders(), credentials: 'include' });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
+}
+
+export async function deleteWhatsAppChat(conversationId: string): Promise<void> {
+  const url = `${API_BASE}/api/v1/integrations/whatsapp/chats/${conversationId}`;
+  const res = await fetch(url, { method: 'DELETE', headers: getAuthHeaders(), credentials: 'include' });
+  if (!res.ok) throw new Error('Failed to delete WhatsApp chat');
+}
+
+export async function fetchGitHubAuthUrl(): Promise<{ url: string; state: string; configured: boolean }> {
+  const url = `${API_BASE}/api/v1/integrations/github/auth-url`;
+  const res = await fetch(url, { headers: getAuthHeaders(), credentials: 'include' });
+  if (!res.ok) throw new Error('Failed to generate GitHub authorization URL');
+  return await res.json();
+}
+
+export async function connectGitHubPat(token: string): Promise<ConnectedAccount> {
+  const url = `${API_BASE}/api/v1/integrations/github/pat`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ token }),
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(errorBody.detail || 'Failed to connect GitHub token.');
+  }
+  return await res.json();
+}
+
+export async function fetchGitHubRepositories(): Promise<GitHubRepo[]> {
+  const url = `${API_BASE}/api/v1/integrations/github/repositories`;
+  const res = await fetch(url, { headers: getAuthHeaders(), credentials: 'include' });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to list GitHub repositories');
+  }
+  return await res.json();
+}
+
+export async function syncGitHubIssues(repository: string, page = 1): Promise<any> {
+  const url = `${API_BASE}/api/v1/integrations/github/sync`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ repository, page }),
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(errorBody.detail || 'Failed to sync GitHub issues.');
+  }
+  return await res.json();
+}
+
+export async function disconnectGitHub(): Promise<void> {
+  const url = `${API_BASE}/api/v1/integrations/github`;
+  const res = await fetch(url, { method: 'DELETE', headers: getAuthHeaders(), credentials: 'include' });
+  if (!res.ok) throw new Error('Failed to disconnect GitHub');
+}
+
+export async function fetchUnifiedMessages(params?: {
+  conversation_id?: string;
+  channel?: string;
+  limit?: number;
+}): Promise<UnifiedMessage[]> {
+  const queryParts = [];
+  if (params?.conversation_id) queryParts.push(`conversation_id=${encodeURIComponent(params.conversation_id)}`);
+  if (params?.channel) queryParts.push(`channel=${encodeURIComponent(params.channel)}`);
+  if (params?.limit) queryParts.push(`limit=${params.limit}`);
+  const qs = queryParts.length ? `?${queryParts.join('&')}` : '';
+
+  const url = `${API_BASE}/api/v1/integrations/messages${qs}`;
+  try {
+    const res = await fetch(url, { headers: getAuthHeaders(), credentials: 'include' });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch {
+    return [];
+  }
 }

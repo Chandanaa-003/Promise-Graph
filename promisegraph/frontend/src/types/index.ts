@@ -71,13 +71,50 @@ export interface Commitment {
 
 export interface ConnectedAccount {
   id: string;
-  provider: ChannelType;
+  provider: 'gmail' | 'whatsapp' | 'github';
   account_identifier: string;
   is_active: boolean;
-  status: 'connected' | 'not_connected' | 'coming_soon';
-  phase: string;
-  auth_type: string;
-  last_sync?: string;
+  token_expires_at?: string;
+  created_at: string;
+  updated_at: string;
+  metadata_json?: string;
+}
+
+export interface UnifiedMessage {
+  id: string;
+  conversation_id: string;
+  user_id: string;
+  external_id?: string;
+  sender_name?: string;
+  sender_address?: string;
+  recipient_addresses?: string;
+  subject?: string;
+  content: string;
+  content_type: string;
+  source_url?: string;
+  timestamp: string;
+  created_at: string;
+}
+
+export interface WhatsAppChat {
+  id: string;
+  title: string;
+  channel: string;
+  external_id?: string;
+  last_message_at?: string;
+  created_at: string;
+  message_count: number;
+}
+
+export interface GitHubRepo {
+  id: number;
+  name: string;
+  full_name: string;
+  description?: string;
+  private: boolean;
+  html_url: string;
+  updated_at: string;
+  open_issues_count: number;
 }
 
 export interface AuthUser {

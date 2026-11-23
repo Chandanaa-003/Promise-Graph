@@ -41,3 +41,9 @@ class Conversation(Base):
     connected_account = relationship("ConnectedAccount", back_populates="conversations")
     commitments = relationship("Commitment", back_populates="conversation")
     evidence_items = relationship("Evidence", back_populates="conversation")
+    messages = relationship(
+        "Message",
+        back_populates="conversation",
+        cascade="all, delete-orphan",
+        order_by="Message.timestamp.asc()",
+    )

@@ -7,6 +7,7 @@ from app.models.connected_account import ConnectedAccount
 from app.models.conversation import Conversation
 from app.models.commitment import Commitment
 from app.models.evidence import Evidence
+from app.models.message import Message
 from app.core.security import get_password_hash
 
 logger = logging.getLogger(__name__)
@@ -25,6 +26,33 @@ def seed_data_if_empty(db: Session, force: bool = False):
             alex.hashed_password = get_password_hash("Password123!")
             db.commit()
             logger.info("Updated alex@promisegraph.ai with default password hash.")
+
+        # Ensure sample messages are seeded for Phase 4 communication model if none exist
+        if alex and db.query(Message).count() == 0:
+            convs = db.query(Conversation).filter(Conversation.user_id == alex.id).all()
+            conv_map = {c.channel: c for c in convs}
+            now_m = datetime.utcnow()
+            for ch, sender, addr, subj, body, c_type, url, hrs in [
+                ("email", "Sarah Chen", "sarah.chen@techcorp.io", "Phase 1 & 2 Delivery Specifications", "Hi Alex,\n\nI reviewed the architecture specs. I will complete Phase 1 by Monday noon with full schema and health checks.\n\nBest,\nSarah", "text", None, 48),
+                ("whatsapp", "David Patel", "David Patel", None, "Hey Alex, got the partner ops approval. Will share the sandbox credentials with you before Thursday end of day.", "text", None, 8),
+                ("github", "mbrody", "mbrody", "PR #42 Webhook Dispatcher Review", "CI pipeline passes with 100% test coverage. I will merge the webhook PR tomorrow once team sign-off is complete.", "markdown", "https://github.com/promisegraph/core/pull/42", 4),
+            ]:
+                target_conv = conv_map.get(ch)
+                if target_conv:
+                    db.add(Message(
+                        conversation_id=target_conv.id,
+                        user_id=alex.id,
+                        external_id=f"msg-{ch}-001",
+                        sender_name=sender,
+                        sender_address=addr,
+                        subject=subj,
+                        content=body,
+                        content_type=c_type,
+                        source_url=url,
+                        timestamp=now_m - timedelta(hours=hrs),
+                    ))
+            db.commit()
+            logger.info("Seeded initial sample messages for unified communication model.")
 
         if not force and people_count > 0 and commitments_count > 0:
             logger.info("Database already contains data; skipping initial seed.")
@@ -248,6 +276,60 @@ def seed_data_if_empty(db: Session, force: bool = False):
                     )
                     db.add(ev)
             db.commit()
+            
+            # 6. Seed Sample Unified Messages for Initial Conversations
+            if db.query(Message).count() == 0:
+                now_msg = datetime.utcnow()
+                sample_msgs = [
+                    {
+                        "conv": created_convs.get("email"),
+                        "external_id": "msg-em-001",
+                        "sender_name": "Sarah Chen",
+                        "sender_address": "sarah.chen@techcorp.io",
+                        "subject": "Phase 1 & 2 Delivery Specifications",
+                        "content": "Hi Alex,\n\nI reviewed the architecture specs. I will complete Phase 1 by Monday noon with full schema and health checks.\n\nBest,\nSarah",
+                        "content_type": "text",
+                        "timestamp": now_msg - timedelta(days=2),
+                    },
+                    {
+                        "conv": created_convs.get("whatsapp"),
+                        "external_id": "msg-wa-002",
+                        "sender_name": "David Patel",
+                        "sender_address": "David Patel",
+                        "subject": None,
+                        "content": "Hey Alex, got the partner ops approval. Will share the sandbox credentials with you before Thursday end of day.",
+                        "content_type": "text",
+                        "timestamp": now_msg - timedelta(hours=8),
+                    },
+                    {
+                        "conv": created_convs.get("github"),
+                        "external_id": "msg-gh-003",
+                        "sender_name": "mbrody",
+                        "sender_address": "mbrody",
+                        "subject": "PR #42 Webhook Dispatcher Review",
+                        "content": "CI pipeline passes with 100% test coverage. I will merge the webhook PR tomorrow once team sign-off is complete.",
+                        "content_type": "markdown",
+                        "source_url": "https://github.com/promisegraph/core/pull/42",
+                        "timestamp": now_msg - timedelta(hours=4),
+                    },
+                ]
+                for m_data in sample_msgs:
+                    if m_data["conv"]:
+                        msg_obj = Message(
+                            conversation_id=m_data["conv"].id,
+                            user_id=user.id,
+                            external_id=m_data["external_id"],
+                            sender_name=m_data["sender_name"],
+                            sender_address=m_data["sender_address"],
+                            subject=m_data.get("subject"),
+                            content=m_data["content"],
+                            content_type=m_data["content_type"],
+                            source_url=m_data.get("source_url"),
+                            timestamp=m_data["timestamp"],
+                        )
+                        db.add(msg_obj)
+                db.commit()
+
             logger.info("Initial seeding completed successfully!")
     except Exception as e:
         logger.error(f"Error seeding database: {e}")

@@ -23,6 +23,19 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
     ACCESS_TOKEN_EXPIRE_DAYS_REMEMBER: int = 30  # 30 days for remember me
 
+    # Frontend URL for OAuth redirects
+    FRONTEND_URL: str = "http://localhost:5173"
+
+    # Google OAuth Configuration (Gmail Integration)
+    GOOGLE_CLIENT_ID: Union[str, None] = None
+    GOOGLE_CLIENT_SECRET: Union[str, None] = None
+    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/v1/integrations/gmail/callback"
+
+    # GitHub OAuth Configuration
+    GITHUB_CLIENT_ID: Union[str, None] = None
+    GITHUB_CLIENT_SECRET: Union[str, None] = None
+    GITHUB_REDIRECT_URI: str = "http://localhost:8000/api/v1/integrations/github/callback"
+
     HOST: str = "0.0.0.0"
     PORT: int = 8000
 
