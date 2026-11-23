@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:16-alpine
+    container_name: promisegraph-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-promisegraph}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-promisegraph}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - promisegraph-network
+
+  # PromiseGraph FastAPI Backend Service
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: promisegraph-backend
+    restart: unless-stopped
+    environment:
+      APP_NAME: PromiseGraph API
+      ENVIRONMENT: production
+      DEBUG: "False"
+      API_V1_STR: /api/v1
+      SECRET_KEY: ${SECRET_KEY:-production-secret-key-32-chars-minimum-needed}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-promisegraph}
+      CORS_ORIGINS: '["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000", "http://localhost:80"]'
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - promisegraph-network
+
+  # Optional Containerized Frontend (Frontend can also run locally with `npm run dev`)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: promisegraph-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      - backend
+    networks:
+      - promisegraph-network
+
+volumes:
+  pgdata:
+    driver: local
+
+networks:
+  promisegraph-network:
+    driver: bridge
