@@ -20,6 +20,11 @@ IOS_REGEX = re.compile(
     r"^\[(\d{1,4}[/\-.]\d{1,2}[/\-.]\d{1,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?(?:\s*[AaPp][Mm])?)\]\s+([^:]+?):\s+(.*)$"
 )
 
+# 3. System line pattern with timestamp but no sender: e.g. "10/14/23, 09:30 AM - Messages and calls are..."
+TIMESTAMP_PREFIX_REGEX = re.compile(
+    r"^(?:\[?(\d{1,4}[/\-.]\d{1,2}[/\-.]\d{1,4}),?\s+(\d{1,2}:\d{2}(?::\d{2})?(?:\s*[AaPp][Mm])?)\]?(?:\s+-\s+|\s+))(.*)$"
+)
+
 # System lines pattern (e.g. encryption notice, security code changes, media omitted)
 SYSTEM_NOTIFICATION_PATTERNS = [
     re.compile(r"messages and calls are end-to-end encrypted", re.IGNORECASE),
@@ -132,6 +137,18 @@ class WhatsAppParser:
                     "content": content,
                 }
             else:
+                # Check if this line is a timestamped system line without a colon
+                sys_match = TIMESTAMP_PREFIX_REGEX.match(cleaned_line)
+                if sys_match:
+                    rem_text = sys_match.group(3)
+                    is_system = any(pat.search(rem_text) for pat in SYSTEM_NOTIFICATION_PATTERNS)
+                    if is_system or (" - " in cleaned_line and ":" not in cleaned_line):
+                        system_lines += 1
+                        if current_message:
+                            messages.append(current_message)
+                            current_message = None
+                        continue
+
                 # Multiline continuation
                 if current_message:
                     current_message["content"] += "\n" + sanitize_text(cleaned_line)

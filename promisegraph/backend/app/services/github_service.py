@@ -201,13 +201,16 @@ class GitHubService:
         cls,
         account: ConnectedAccount,
         db: Session,
+        http_client: Optional[httpx.AsyncClient] = None,
     ) -> List[Dict[str, Any]]:
         """List accessible repositories for the connected GitHub account."""
         token = decrypt_token(account.access_token_encrypted)
         if not token:
             raise ValueError("GitHub access token is missing or invalid.")
 
-        async with httpx.AsyncClient(timeout=15.0) as client:
+        client = http_client or httpx.AsyncClient(timeout=15.0)
+        should_close = http_client is None
+        try:
             res = await client.get(
                 f"{GITHUB_API_BASE}/user/repos",
                 params={"sort": "updated", "per_page": 50},
@@ -234,6 +237,9 @@ class GitHubService:
                 }
                 for r in repos
             ]
+        finally:
+            if should_close:
+                await client.aclose()
 
     @classmethod
     async def sync_issues_and_prs(
@@ -244,13 +250,16 @@ class GitHubService:
         db: Session,
         page: int = 1,
         per_page: int = 20,
+        http_client: Optional[httpx.AsyncClient] = None,
     ) -> Dict[str, Any]:
         """Fetch read-only issues and pull requests from a selected repository and ingest them."""
         token = decrypt_token(account.access_token_encrypted)
         if not token:
             raise ValueError("GitHub access token is missing or invalid.")
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        client = http_client or httpx.AsyncClient(timeout=20.0)
+        should_close = http_client is None
+        try:
             res = await client.get(
                 f"{GITHUB_API_BASE}/repos/{repo_full_name}/issues",
                 params={"state": "all", "page": page, "per_page": min(per_page, 50)},
@@ -264,6 +273,9 @@ class GitHubService:
                 raise ValueError(f"GitHub API error fetching issues: {res.text}")
 
             issues_data = res.json()
+        finally:
+            if should_close:
+                await client.aclose()
 
         synced_count = 0
         ingested = []
@@ -285,6 +297,8 @@ class GitHubService:
                     ts = datetime.fromisoformat(created_at_str.replace("Z", "+00:00"))
                 except Exception:
                     pass
+            if ts.tzinfo is not None:
+                ts = ts.replace(tzinfo=None)
 
             is_pr = "pull_request" in item
             kind = "Pull Request" if is_pr else "Issue"
@@ -352,14 +366,15 @@ class GitHubService:
     @classmethod
     def disconnect_account(cls, user_id: str, db: Session) -> bool:
         """Disconnect GitHub integration and delete credentials."""
-        account = db.query(ConnectedAccount).filter(
+        accounts = db.query(ConnectedAccount).filter(
             ConnectedAccount.user_id == user_id,
             ConnectedAccount.provider == "github",
-        ).first()
+        ).all()
 
-        if not account:
+        if not accounts:
             return False
 
-        db.delete(account)
+        for account in accounts:
+            db.delete(account)
         db.commit()
         return True

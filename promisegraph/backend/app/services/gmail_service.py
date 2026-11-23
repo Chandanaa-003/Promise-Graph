@@ -222,6 +222,7 @@ class GmailService:
         db: Session,
         max_results: int = 15,
         page_token: Optional[str] = None,
+        http_client: Optional[httpx.AsyncClient] = None,
     ) -> Dict[str, Any]:
         """Fetch read-only Gmail messages, extract communication metadata, and ingest into database."""
         token = await cls.get_valid_access_token(account, db)
@@ -232,7 +233,9 @@ class GmailService:
         messages_ingested = []
         next_page = None
 
-        async with httpx.AsyncClient(timeout=20.0) as client:
+        client = http_client or httpx.AsyncClient(timeout=20.0)
+        should_close = http_client is None
+        try:
             # 1. Fetch message IDs
             list_params: Dict[str, Any] = {"maxResults": min(max_results, 50)}
             if page_token:
@@ -288,6 +291,9 @@ class GmailService:
                     except Exception:
                         pass
 
+                if msg_timestamp.tzinfo is not None:
+                    msg_timestamp = msg_timestamp.replace(tzinfo=None)
+
                 # Extract content snippet
                 snippet = msg_data.get("snippet", "")
 
@@ -310,7 +316,10 @@ class GmailService:
                     db.commit()
                     db.refresh(conv)
                 else:
-                    if not conv.last_message_at or msg_timestamp > conv.last_message_at:
+                    conv_last = conv.last_message_at
+                    if conv_last and conv_last.tzinfo is not None:
+                        conv_last = conv_last.replace(tzinfo=None)
+                    if not conv_last or msg_timestamp > conv_last:
                         conv.last_message_at = msg_timestamp
                         db.commit()
 
@@ -343,6 +352,9 @@ class GmailService:
                         "sender": sender_name,
                         "date": msg_timestamp.isoformat(),
                     })
+        finally:
+            if should_close:
+                await client.aclose()
 
         return {
             "synced_count": synced_count,
@@ -353,24 +365,24 @@ class GmailService:
     @classmethod
     async def disconnect_account(cls, user_id: str, db: Session) -> bool:
         """Disconnect Gmail integration and revoke Google OAuth access."""
-        account = db.query(ConnectedAccount).filter(
+        accounts = db.query(ConnectedAccount).filter(
             ConnectedAccount.user_id == user_id,
             ConnectedAccount.provider == "gmail",
-        ).first()
+        ).all()
 
-        if not account:
+        if not accounts:
             return False
 
-        # Attempt token revocation with Google
-        token = decrypt_token(account.access_token_encrypted)
-        if token:
-            try:
-                async with httpx.AsyncClient(timeout=5.0) as client:
-                    await client.post(GOOGLE_REVOKE_URL, params={"token": token})
-            except Exception as exc:
-                logger.debug(f"Google token revoke request failed: {exc}")
+        for account in accounts:
+            # Attempt token revocation with Google
+            token = decrypt_token(account.access_token_encrypted)
+            if token:
+                try:
+                    async with httpx.AsyncClient(timeout=5.0) as client:
+                        await client.post(GOOGLE_REVOKE_URL, params={"token": token})
+                except Exception as exc:
+                    logger.debug(f"Google token revoke request failed: {exc}")
+            db.delete(account)
 
-        # Remove connected account record
-        db.delete(account)
         db.commit()
         return True
