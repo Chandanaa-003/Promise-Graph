@@ -20,6 +20,8 @@ class EvidenceRead(EvidenceBase):
     id: str
     commitment_id: str
     conversation_id: Optional[str] = None
+    commitment_title: Optional[str] = None
+    channel: Optional[str] = None
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)

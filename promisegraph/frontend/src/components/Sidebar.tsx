@@ -2,10 +2,11 @@ import React from 'react';
 import {
   LayoutDashboard,
   FileCheck2,
+  Users,
   GitFork,
   Radio,
+  FileSearch,
   Settings,
-  Shield,
   Sparkles
 } from 'lucide-react';
 
@@ -14,12 +15,16 @@ interface SidebarProps {
   setActiveTab: (tab: string) => void;
   isOpen: boolean;
   toggleSidebar: () => void;
+  commitmentsCount?: number;
+  peopleCount?: number;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   setActiveTab,
   isOpen,
+  commitmentsCount = 0,
+  peopleCount = 0,
 }) => {
   const navItems = [
     {
@@ -33,33 +38,40 @@ export const Sidebar: React.FC<SidebarProps> = ({
       id: 'commitments',
       label: 'Commitments',
       icon: FileCheck2,
-      badge: '14 Active',
+      badge: commitmentsCount > 0 ? `${commitmentsCount}` : null,
       desc: 'Extracted promises & deadlines'
+    },
+    {
+      id: 'people',
+      label: 'People',
+      icon: Users,
+      badge: peopleCount > 0 ? `${peopleCount}` : null,
+      desc: 'Stakeholders directory'
     },
     {
       id: 'graph',
       label: 'Relationship Graph',
       icon: GitFork,
-      badge: '28 Nodes',
-      desc: 'Stakeholder commitment graph'
+      badge: null,
+      desc: 'Visual knowledge graph'
     },
     {
       id: 'channels',
-      label: 'Channel Sources',
+      label: 'Sources',
       icon: Radio,
-      badge: 'Phase 2+',
-      desc: 'Email, WhatsApp, GitHub'
+      badge: 'Roadmap',
+      desc: 'Gmail, WhatsApp, GitHub'
     },
     {
-      id: 'approvals',
-      label: 'Approvals & Follow-ups',
-      icon: Shield,
-      badge: 'Review',
-      desc: 'Human-in-the-loop actions'
+      id: 'evidence',
+      label: 'Evidence & Audit',
+      icon: FileSearch,
+      badge: 'Audit',
+      desc: 'Context proof records'
     },
     {
       id: 'settings',
-      label: 'Settings & Config',
+      label: 'Settings',
       icon: Settings,
       badge: null,
       desc: 'API keys & preferences'
@@ -126,17 +138,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="rounded-2xl border border-[#E8EAF3] bg-[#F5F7FF] p-4 hidden lg:block">
             <div className="flex items-center space-x-2 text-[#5146E5] text-xs font-bold">
               <Sparkles className="h-4 w-4" />
-              <span>Foundation Phase 1</span>
+              <span>Phase 2 Functional</span>
             </div>
             <p className="mt-1.5 text-[11px] text-[#64708B] leading-relaxed">
-              FastAPI backend, PostgreSQL models, and React UI ready for channel ingestion pipelines.
+              Active React frontend synced with FastAPI & SQLite/PostgreSQL models with full CRUD.
             </p>
             <div className="mt-3 flex items-center justify-between text-[10px] text-[#64708B] pt-2 border-t border-[#E8EAF3]/70">
               <span className="flex items-center space-x-1.5">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#24B8A5]" />
-                <span className="font-medium text-[#172044]">SQLAlchemy 2.0</span>
+                <span className="font-medium text-[#172044]">Live Connected</span>
               </span>
-              <span className="font-medium">FastAPI 0.115</span>
+              <span className="font-medium">REST API v1</span>
             </div>
           </div>
         </div>
@@ -144,8 +156,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Footer info in sidebar */}
         <div className="border-t border-[#E8EAF3] pt-4 hidden lg:block">
           <div className="flex items-center justify-between text-[11px]">
-            <span className="text-[#64708B]">PromiseGraph v0.1.0</span>
-            <span className="text-[#24B8A5] font-semibold">Phase 1 Done</span>
+            <span className="text-[#64708B]">PromiseGraph v0.2.0</span>
+            <span className="text-[#24B8A5] font-semibold">Phase 2 Active</span>
           </div>
         </div>
 

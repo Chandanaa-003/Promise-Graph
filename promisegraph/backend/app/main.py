@@ -7,7 +7,8 @@ from fastapi.responses import JSONResponse
 
 from app.api.v1.router import api_v1_router
 from app.core.config import settings
-from app.core.database import check_db_connection, init_db
+from app.core.database import check_db_connection, init_db, SessionLocal
+from app.services.seed import seed_data_if_empty
 from app.schemas.health import HealthResponse
 
 # Configure logging
@@ -25,6 +26,11 @@ async def lifespan(app: FastAPI):
     try:
         init_db()
         logger.info("Database initialized successfully.")
+        db = SessionLocal()
+        try:
+            seed_data_if_empty(db)
+        finally:
+            db.close()
     except Exception as exc:
         logger.warning(
             f"Database initialization could not complete on startup: {exc}. "

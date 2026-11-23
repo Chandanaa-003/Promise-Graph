@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional, List
 from sqlalchemy import Column, String, DateTime, ForeignKey, Text, Float
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -60,3 +61,15 @@ class Commitment(Base):
     evidence_items = relationship(
         "Evidence", back_populates="commitment", cascade="all, delete-orphan"
     )
+
+    @property
+    def person_name(self) -> Optional[str]:
+        return self.person.display_name if self.person else None
+
+    @property
+    def channel(self) -> Optional[str]:
+        return self.conversation.channel if self.conversation else "email"
+
+    @property
+    def evidence_snippets(self) -> List[str]:
+        return [item.snippet_text for item in self.evidence_items] if self.evidence_items else []

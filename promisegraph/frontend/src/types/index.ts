@@ -32,18 +32,23 @@ export interface Person {
   relationship_score: number;
   notes?: string;
   created_at: string;
+  active_count?: number;
+  completed_count?: number;
 }
 
 export interface Evidence {
   id: string;
   commitment_id: string;
   conversation_id?: string;
+  commitment_title?: string;
+  channel?: ChannelType;
   snippet_text: string;
   context_before?: string;
   context_after?: string;
   timestamp?: string;
   source_message_id?: string;
   created_at: string;
+  verification_status?: 'verified' | 'pending' | 'unverified';
 }
 
 export interface Commitment {
@@ -69,5 +74,8 @@ export interface ConnectedAccount {
   provider: ChannelType;
   account_identifier: string;
   is_active: boolean;
-  status: 'connected' | 'planned' | 'paused';
+  status: 'connected' | 'not_connected' | 'coming_soon';
+  phase: string;
+  auth_type: string;
+  last_sync?: string;
 }

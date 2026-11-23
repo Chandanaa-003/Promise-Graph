@@ -3,7 +3,9 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.models.person import Person
+from app.models.commitment import Commitment
 from app.schemas.person import PersonCreate, PersonRead, PersonUpdate
+from app.schemas.commitment import CommitmentRead
 
 router = APIRouter(prefix="/people", tags=["People"])
 
@@ -53,3 +55,9 @@ def get_person(person_id: str, db: Session = Depends(get_db)) -> PersonRead:
             detail=f"Person with ID '{person_id}' not found.",
         )
     return person
+
+
+@router.get("/{person_id}/commitments", response_model=List[CommitmentRead])
+def get_person_commitments(person_id: str, db: Session = Depends(get_db)) -> List[CommitmentRead]:
+    """Get all commitments associated with a specific person."""
+    return db.query(Commitment).filter(Commitment.person_id == person_id).all()

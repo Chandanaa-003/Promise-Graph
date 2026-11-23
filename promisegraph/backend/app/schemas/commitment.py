@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, ConfigDict
 
 
@@ -13,9 +13,10 @@ class CommitmentBase(BaseModel):
 
 
 class CommitmentCreate(CommitmentBase):
-    user_id: str
+    user_id: Optional[str] = None
     conversation_id: Optional[str] = None
     person_id: Optional[str] = None
+    channel: Optional[str] = "email"
 
 
 class CommitmentUpdate(BaseModel):
@@ -25,6 +26,7 @@ class CommitmentUpdate(BaseModel):
     commitment_type: Optional[str] = None
     due_date: Optional[datetime] = None
     confidence_score: Optional[float] = None
+    person_id: Optional[str] = None
 
 
 class CommitmentRead(CommitmentBase):
@@ -32,6 +34,9 @@ class CommitmentRead(CommitmentBase):
     user_id: str
     conversation_id: Optional[str] = None
     person_id: Optional[str] = None
+    person_name: Optional[str] = None
+    channel: Optional[str] = None
+    evidence_snippets: Optional[List[str]] = None
     created_at: datetime
     updated_at: datetime
 

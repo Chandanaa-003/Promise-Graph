@@ -1,4 +1,5 @@
 import uuid
+from typing import Optional
 from sqlalchemy import Column, String, DateTime, ForeignKey, Text
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -33,3 +34,15 @@ class Evidence(Base):
     # Relationships
     commitment = relationship("Commitment", back_populates="evidence_items")
     conversation = relationship("Conversation", back_populates="evidence_items")
+
+    @property
+    def commitment_title(self) -> Optional[str]:
+        return self.commitment.title if self.commitment else None
+
+    @property
+    def channel(self) -> Optional[str]:
+        if self.conversation:
+            return self.conversation.channel
+        if self.commitment and self.commitment.conversation:
+            return self.commitment.conversation.channel
+        return "email"

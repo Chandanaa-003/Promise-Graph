@@ -1,6 +1,7 @@
 from typing import List, Optional
 from sqlalchemy.orm import Session
 from app.models.commitment import Commitment
+from app.models.user import User
 from app.schemas.commitment import CommitmentCreate, CommitmentUpdate
 
 
@@ -28,8 +29,21 @@ class CommitmentService:
 
     @staticmethod
     def create(db: Session, commitment_in: CommitmentCreate) -> Commitment:
+        user_id = commitment_in.user_id
+        if not user_id:
+            # Fall back to default primary user
+            first_user = db.query(User).first()
+            if first_user:
+                user_id = first_user.id
+            else:
+                user = User(email="alex@promisegraph.ai", full_name="Alex Mercer")
+                db.add(user)
+                db.commit()
+                db.refresh(user)
+                user_id = user.id
+
         commitment = Commitment(
-            user_id=commitment_in.user_id,
+            user_id=user_id,
             conversation_id=commitment_in.conversation_id,
             person_id=commitment_in.person_id,
             title=commitment_in.title,
@@ -54,3 +68,12 @@ class CommitmentService:
         db.commit()
         db.refresh(db_commitment)
         return db_commitment
+
+    @staticmethod
+    def delete(db: Session, commitment_id: str) -> bool:
+        commitment = db.query(Commitment).filter(Commitment.id == commitment_id).first()
+        if not commitment:
+            return False
+        db.delete(commitment)
+        db.commit()
+        return True

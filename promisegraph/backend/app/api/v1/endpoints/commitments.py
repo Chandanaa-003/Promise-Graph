@@ -58,3 +58,18 @@ def update_commitment(
             detail=f"Commitment with ID '{commitment_id}' not found.",
         )
     return CommitmentService.update(db, commitment, commitment_in)
+
+
+@router.delete("/{commitment_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_commitment(
+    commitment_id: str,
+    db: Session = Depends(get_db),
+):
+    """Delete a commitment by ID."""
+    success = CommitmentService.delete(db, commitment_id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Commitment with ID '{commitment_id}' not found.",
+        )
+    return None
