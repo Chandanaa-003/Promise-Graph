@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api.v1.router import api_v1_router
+from app.api.v1.endpoints.auth import router as auth_router
 from app.core.config import settings
 from app.core.database import check_db_connection, init_db, SessionLocal
 from app.services.seed import seed_data_if_empty
@@ -116,3 +117,5 @@ def root_info():
 
 # Mount API v1 router
 app.include_router(api_v1_router, prefix=settings.API_V1_STR)
+# Also mount auth router at /api/auth directly for top-level /api/auth paths
+app.include_router(auth_router, prefix="/api/auth")

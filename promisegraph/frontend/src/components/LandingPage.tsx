@@ -12,15 +12,20 @@ import {
   MessageSquare,
   Github,
   Lock,
-  Layers,
   ChevronRight
 } from 'lucide-react';
 
 interface LandingPageProps {
   onEnterDashboard: () => void;
+  onGoToLogin?: () => void;
+  onGoToRegister?: () => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({
+  onEnterDashboard,
+  onGoToLogin,
+  onGoToRegister,
+}) => {
   const features = [
     {
       title: 'Cross-Channel Ingestion',
@@ -123,13 +128,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterDashboard }) =>
               <ArrowRight className="h-4 w-4" />
             </button>
 
-            <a
-              href="#architecture"
-              className="inline-flex items-center space-x-2 rounded-xl border border-[#E8EAF3] bg-white px-6 py-3.5 text-sm sm:text-base font-semibold text-[#172044] hover:bg-[#F8F9FD] hover:border-[#D6D9EB] shadow-subtle transition-all"
-            >
-              <Layers className="h-4 w-4 text-[#5146E5]" />
-              <span>Architecture Specs</span>
-            </a>
+            {onGoToRegister && (
+              <button
+                onClick={onGoToRegister}
+                className="inline-flex items-center space-x-2 rounded-xl border border-[#5146E5]/20 bg-[#EEF0FD] px-6 py-3.5 text-sm sm:text-base font-bold text-[#5146E5] hover:bg-[#EEF0FD]/80 shadow-subtle transition-all"
+              >
+                <span>Create Free Account</span>
+              </button>
+            )}
+
+            {onGoToLogin && (
+              <button
+                onClick={onGoToLogin}
+                className="inline-flex items-center space-x-2 rounded-xl border border-[#E8EAF3] bg-white px-6 py-3.5 text-sm sm:text-base font-semibold text-[#172044] hover:bg-[#F8F9FD] hover:border-[#D6D9EB] shadow-subtle transition-all"
+              >
+                <span>Sign In</span>
+              </button>
+            )}
           </div>
 
           {/* Planned Channel Badges */}

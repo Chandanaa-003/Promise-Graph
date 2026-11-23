@@ -1,6 +1,49 @@
-import { Commitment, Person, Evidence, HealthResponse } from '../types';
+import {
+  Commitment,
+  Person,
+  Evidence,
+  HealthResponse,
+  AuthUser,
+  LoginCredentials,
+  RegisterCredentials,
+  AuthResponse,
+  UpdateProfilePayload,
+  ChangePasswordPayload,
+} from '../types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+const TOKEN_KEY = 'pg_auth_token';
+
+export function getStoredToken(): string | null {
+  try {
+    return localStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setStoredToken(token: string | null): void {
+  try {
+    if (token) {
+      localStorage.setItem(TOKEN_KEY, token);
+    } else {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+  } catch {
+    // ignore local storage restrictions
+  }
+}
+
+function getAuthHeaders(extraHeaders: HeadersInit = {}): HeadersInit {
+  const headers: Record<string, string> = {
+    ...extraHeaders as Record<string, string>,
+  };
+  const token = getStoredToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  return headers;
+}
 
 /**
  * Fetch backend system health status
@@ -26,31 +69,136 @@ export async function fetchHealth(): Promise<HealthResponse> {
   }
 }
 
-/**
- * Fetch all commitments with optional status filter
- */
+// ----------------------------------------------------
+// Authentication API
+// ----------------------------------------------------
+
+export async function loginUser(credentials: LoginCredentials): Promise<AuthResponse> {
+  const url = `${API_BASE}/api/auth/login`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(credentials),
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(errorBody.detail || 'Invalid email or password.');
+  }
+  const data: AuthResponse = await res.json();
+  if (data.access_token) {
+    setStoredToken(data.access_token);
+  }
+  return data;
+}
+
+export async function registerUser(credentials: RegisterCredentials): Promise<AuthResponse> {
+  const url = `${API_BASE}/api/auth/register`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(credentials),
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(errorBody.detail || 'Registration failed.');
+  }
+  const data: AuthResponse = await res.json();
+  if (data.access_token) {
+    setStoredToken(data.access_token);
+  }
+  return data;
+}
+
+export async function logoutUser(): Promise<void> {
+  const url = `${API_BASE}/api/auth/logout`;
+  try {
+    await fetch(url, {
+      method: 'POST',
+      credentials: 'include',
+    });
+  } catch {
+    // Best-effort logout
+  } finally {
+    setStoredToken(null);
+  }
+}
+
+export async function fetchCurrentUser(): Promise<AuthUser> {
+  const url = `${API_BASE}/api/auth/me`;
+  const res = await fetch(url, {
+    headers: getAuthHeaders(),
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    throw new Error('Not authenticated');
+  }
+  return await res.json();
+}
+
+export async function updateProfile(payload: UpdateProfilePayload): Promise<AuthUser> {
+  const url = `${API_BASE}/api/auth/profile`;
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify(payload),
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(errorBody.detail || 'Failed to update profile.');
+  }
+  return await res.json();
+}
+
+export async function changePassword(payload: ChangePasswordPayload): Promise<{ message: string }> {
+  const url = `${API_BASE}/api/auth/change-password`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify(payload),
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(errorBody.detail || 'Failed to change password.');
+  }
+  return await res.json();
+}
+
+// ----------------------------------------------------
+// Commitments API
+// ----------------------------------------------------
+
 export async function fetchCommitments(statusFilter?: string): Promise<Commitment[]> {
   const params = statusFilter && statusFilter !== 'all' ? `?status_filter=${statusFilter}` : '';
   const url = `${API_BASE}/api/v1/commitments${params}`;
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
     if (!res.ok) {
+      if (res.status === 401) {
+        throw new Error('Unauthorized');
+      }
       throw new Error(`Error fetching commitments: ${res.status}`);
     }
     return await res.json();
   } catch (err) {
-    console.warn('API fetchCommitments fallback:', err);
+    console.warn('API fetchCommitments fallback/error:', err);
     return [];
   }
 }
 
-/**
- * Fetch a single commitment by ID
- */
 export async function fetchCommitmentById(id: string): Promise<Commitment | null> {
   const url = `${API_BASE}/api/v1/commitments/${id}`;
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
     if (!res.ok) return null;
     return await res.json();
   } catch (err) {
@@ -59,9 +207,6 @@ export async function fetchCommitmentById(id: string): Promise<Commitment | null
   }
 }
 
-/**
- * Create a new commitment
- */
 export async function createCommitment(data: {
   title: string;
   description?: string;
@@ -74,8 +219,9 @@ export async function createCommitment(data: {
   const url = `${API_BASE}/api/v1/commitments`;
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(data),
+    credentials: 'include',
   });
   if (!res.ok) {
     const errorBody = await res.json().catch(() => ({}));
@@ -84,9 +230,6 @@ export async function createCommitment(data: {
   return await res.json();
 }
 
-/**
- * Update an existing commitment
- */
 export async function updateCommitment(
   id: string,
   data: Partial<Commitment>
@@ -94,8 +237,9 @@ export async function updateCommitment(
   const url = `${API_BASE}/api/v1/commitments/${id}`;
   const res = await fetch(url, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' },
+    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
     body: JSON.stringify(data),
+    credentials: 'include',
   });
   if (!res.ok) {
     const errorBody = await res.json().catch(() => ({}));
@@ -104,24 +248,27 @@ export async function updateCommitment(
   return await res.json();
 }
 
-/**
- * Delete a commitment by ID
- */
 export async function deleteCommitment(id: string): Promise<boolean> {
   const url = `${API_BASE}/api/v1/commitments/${id}`;
   const res = await fetch(url, {
     method: 'DELETE',
+    headers: getAuthHeaders(),
+    credentials: 'include',
   });
   return res.ok || res.status === 204;
 }
 
-/**
- * Fetch all people in the relationship graph
- */
+// ----------------------------------------------------
+// People API
+// ----------------------------------------------------
+
 export async function fetchPeople(): Promise<Person[]> {
   const url = `${API_BASE}/api/v1/people`;
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
     if (!res.ok) {
       throw new Error(`Error fetching people: ${res.status}`);
     }
@@ -132,13 +279,13 @@ export async function fetchPeople(): Promise<Person[]> {
   }
 }
 
-/**
- * Fetch a person by ID
- */
 export async function fetchPersonById(id: string): Promise<Person | null> {
   const url = `${API_BASE}/api/v1/people/${id}`;
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
     if (!res.ok) return null;
     return await res.json();
   } catch (err) {
@@ -147,13 +294,13 @@ export async function fetchPersonById(id: string): Promise<Person | null> {
   }
 }
 
-/**
- * Fetch all commitments for a specific person
- */
 export async function fetchPersonCommitments(personId: string): Promise<Commitment[]> {
   const url = `${API_BASE}/api/v1/people/${personId}/commitments`;
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
     if (!res.ok) return [];
     return await res.json();
   } catch (err) {
@@ -162,14 +309,18 @@ export async function fetchPersonCommitments(personId: string): Promise<Commitme
   }
 }
 
-/**
- * Fetch all evidence records
- */
+// ----------------------------------------------------
+// Evidence API
+// ----------------------------------------------------
+
 export async function fetchEvidence(commitmentId?: string): Promise<Evidence[]> {
   const params = commitmentId ? `?commitment_id=${commitmentId}` : '';
   const url = `${API_BASE}/api/v1/evidence${params}`;
   try {
-    const res = await fetch(url);
+    const res = await fetch(url, {
+      headers: getAuthHeaders(),
+      credentials: 'include',
+    });
     if (!res.ok) return [];
     return await res.json();
   } catch (err) {
@@ -183,7 +334,11 @@ export async function fetchEvidence(commitmentId?: string): Promise<Evidence[]> 
  */
 export async function triggerSeedData(): Promise<{ status: string; message: string }> {
   const url = `${API_BASE}/api/v1/seed`;
-  const res = await fetch(url, { method: 'POST' });
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    credentials: 'include',
+  });
   if (!res.ok) {
     throw new Error('Failed to seed database');
   }

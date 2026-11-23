@@ -1,6 +1,7 @@
 from fastapi import APIRouter
 from app.api.v1.endpoints import (
     health,
+    auth,
     users,
     commitments,
     people,
@@ -11,6 +12,7 @@ from app.api.v1.endpoints import (
 
 api_v1_router = APIRouter()
 
+api_v1_router.include_router(auth.router, prefix="/auth")
 api_v1_router.include_router(health.router)
 api_v1_router.include_router(users.router)
 api_v1_router.include_router(commitments.router)

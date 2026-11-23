@@ -53,6 +53,22 @@ def init_db() -> None:
         import app.models  # noqa: F401
 
         Base.metadata.create_all(bind=engine)
+
+        # Check and migrate columns if necessary
+        with engine.connect() as conn:
+            if settings.is_sqlite:
+                result = conn.execute(text("PRAGMA table_info(users)"))
+                columns = [row[1] for row in result.fetchall()]
+                if columns and "hashed_password" not in columns:
+                    conn.execute(text("ALTER TABLE users ADD COLUMN hashed_password VARCHAR(255)"))
+                    conn.commit()
+                    logger.info("Added hashed_password column to users table.")
+            else:
+                conn.execute(
+                    text("ALTER TABLE users ADD COLUMN IF NOT EXISTS hashed_password VARCHAR(255)")
+                )
+                conn.commit()
+
         logger.info("Database tables initialized successfully.")
     except Exception as exc:
         logger.error(f"Failed to initialize database tables: {exc}")

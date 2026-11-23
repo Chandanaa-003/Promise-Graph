@@ -7,6 +7,7 @@ from app.models.connected_account import ConnectedAccount
 from app.models.conversation import Conversation
 from app.models.commitment import Commitment
 from app.models.evidence import Evidence
+from app.core.security import get_password_hash
 
 logger = logging.getLogger(__name__)
 
@@ -17,6 +18,13 @@ def seed_data_if_empty(db: Session, force: bool = False):
         user_count = db.query(User).count()
         people_count = db.query(Person).count()
         commitments_count = db.query(Commitment).count()
+
+        # Always ensure primary user has a password set even if database was already seeded
+        alex = db.query(User).filter(User.email == "alex@promisegraph.ai").first()
+        if alex and not alex.hashed_password:
+            alex.hashed_password = get_password_hash("Password123!")
+            db.commit()
+            logger.info("Updated alex@promisegraph.ai with default password hash.")
 
         if not force and people_count > 0 and commitments_count > 0:
             logger.info("Database already contains data; skipping initial seed.")
@@ -30,9 +38,14 @@ def seed_data_if_empty(db: Session, force: bool = False):
             user = User(
                 email="alex@promisegraph.ai",
                 full_name="Alex Mercer",
+                hashed_password=get_password_hash("Password123!"),
                 is_active=True,
             )
             db.add(user)
+            db.commit()
+            db.refresh(user)
+        elif not user.hashed_password:
+            user.hashed_password = get_password_hash("Password123!")
             db.commit()
             db.refresh(user)
 

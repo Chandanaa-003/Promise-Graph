@@ -19,6 +19,9 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     API_V1_STR: str = "/api/v1"
     SECRET_KEY: str = "change-this-in-production-to-a-secure-random-secret-key-32-bytes-min"
+    JWT_ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
+    ACCESS_TOKEN_EXPIRE_DAYS_REMEMBER: int = 30  # 30 days for remember me
 
     HOST: str = "0.0.0.0"
     PORT: int = 8000

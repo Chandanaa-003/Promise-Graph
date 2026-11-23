@@ -2,55 +2,46 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.schemas.user import UserCreate, UserRead, UserUpdate
+from app.core.security import get_current_user
+from app.models.user import User
+from app.schemas.user import UserRead, UserUpdate
 from app.services.user_service import UserService
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.get("", response_model=List[UserRead])
-def list_users(
-    skip: int = 0, limit: int = 100, db: Session = Depends(get_db)
-) -> List[UserRead]:
-    """Retrieve list of users."""
-    return UserService.get_all(db, skip=skip, limit=limit)
-
-
-@router.post("", response_model=UserRead, status_code=status.HTTP_201_CREATED)
-def create_user(
-    user_in: UserCreate, db: Session = Depends(get_db)
-) -> UserRead:
-    """Create a new user."""
-    existing = UserService.get_by_email(db, user_in.email)
-    if existing:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"User with email '{user_in.email}' already exists.",
-        )
-    return UserService.create(db, user_in)
+@router.get("/me", response_model=UserRead)
+def get_current_user_profile(current_user: User = Depends(get_current_user)) -> UserRead:
+    """Retrieve the current authenticated user's profile."""
+    return current_user
 
 
 @router.get("/{user_id}", response_model=UserRead)
-def get_user(user_id: str, db: Session = Depends(get_db)) -> UserRead:
-    """Retrieve user by ID."""
-    user = UserService.get_by_id(db, user_id)
-    if not user:
+def get_user(
+    user_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> UserRead:
+    """Retrieve user by ID (only self access permitted)."""
+    if current_user.id != user_id:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with ID '{user_id}' not found.",
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access forbidden: you can only view your own user account.",
         )
-    return user
+    return current_user
 
 
 @router.patch("/{user_id}", response_model=UserRead)
 def update_user(
-    user_id: str, user_in: UserUpdate, db: Session = Depends(get_db)
+    user_id: str,
+    user_in: UserUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
 ) -> UserRead:
-    """Update user details."""
-    user = UserService.get_by_id(db, user_id)
-    if not user:
+    """Update user details (only self update permitted)."""
+    if current_user.id != user_id:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"User with ID '{user_id}' not found.",
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Access forbidden: you can only update your own user account.",
         )
-    return UserService.update(db, user, user_in)
+    return UserService.update(db, current_user, user_in)

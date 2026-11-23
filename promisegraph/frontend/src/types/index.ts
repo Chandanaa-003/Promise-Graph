@@ -79,3 +79,39 @@ export interface ConnectedAccount {
   auth_type: string;
   last_sync?: string;
 }
+
+export interface AuthUser {
+  id: string;
+  email: string;
+  full_name?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+  remember_me?: boolean;
+}
+
+export interface RegisterCredentials {
+  email: string;
+  password: string;
+  full_name?: string;
+}
+
+export interface AuthResponse {
+  access_token: string;
+  token_type: string;
+  user: AuthUser;
+}
+
+export interface UpdateProfilePayload {
+  full_name: string;
+}
+
+export interface ChangePasswordPayload {
+  current_password: string;
+  new_password: string;
+}
