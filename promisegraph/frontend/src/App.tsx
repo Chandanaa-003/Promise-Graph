@@ -10,7 +10,7 @@ export const App: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#F5F7FF] text-[#172044] flex flex-col font-sans selection:bg-[#5146E5] selection:text-white">
       {/* Top Header / Navbar */}
       <Navbar
         currentView={currentView}
@@ -35,7 +35,7 @@ export const App: React.FC = () => {
           />
 
           {/* Dashboard Area */}
-          <main className="flex-1 overflow-y-auto">
+          <main className="flex-1 overflow-y-auto bg-[#F5F7FF]">
             <Dashboard />
           </main>
         </div>

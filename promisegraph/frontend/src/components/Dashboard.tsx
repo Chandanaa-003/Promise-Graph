@@ -175,37 +175,37 @@ export const Dashboard: React.FC = () => {
     switch (status) {
       case 'fulfilled':
         return (
-          <span className="inline-flex items-center space-x-1 rounded-md bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400 border border-emerald-500/20">
-            <CheckCircle className="h-3 w-3" />
+          <span className="inline-flex items-center space-x-1.5 rounded-lg bg-[#E6F8F5] px-2.5 py-1 text-xs font-semibold text-[#24B8A5] border border-[#24B8A5]/25">
+            <CheckCircle className="h-3.5 w-3.5" />
             <span>Fulfilled</span>
           </span>
         );
       case 'in_progress':
         return (
-          <span className="inline-flex items-center space-x-1 rounded-md bg-blue-500/10 px-2 py-0.5 text-xs font-medium text-blue-400 border border-blue-500/20">
-            <Clock className="h-3 w-3" />
+          <span className="inline-flex items-center space-x-1.5 rounded-lg bg-[#EEF0FD] px-2.5 py-1 text-xs font-semibold text-[#5146E5] border border-[#5146E5]/25">
+            <Clock className="h-3.5 w-3.5" />
             <span>In Progress</span>
           </span>
         );
       case 'overdue':
         return (
-          <span className="inline-flex items-center space-x-1 rounded-md bg-red-500/10 px-2 py-0.5 text-xs font-medium text-red-400 border border-red-500/20">
-            <AlertTriangle className="h-3 w-3" />
+          <span className="inline-flex items-center space-x-1.5 rounded-lg bg-[#FDF1F0] px-2.5 py-1 text-xs font-semibold text-[#E66D68] border border-[#E66D68]/30">
+            <AlertTriangle className="h-3.5 w-3.5" />
             <span>Overdue</span>
           </span>
         );
       case 'cancelled':
         return (
-          <span className="inline-flex items-center space-x-1 rounded-md bg-slate-500/10 px-2 py-0.5 text-xs font-medium text-slate-400 border border-slate-500/20">
-            <XCircle className="h-3 w-3" />
+          <span className="inline-flex items-center space-x-1.5 rounded-lg bg-[#F5F7FF] px-2.5 py-1 text-xs font-semibold text-[#64708B] border border-[#E8EAF3]">
+            <XCircle className="h-3.5 w-3.5" />
             <span>Cancelled</span>
           </span>
         );
       case 'pending':
       default:
         return (
-          <span className="inline-flex items-center space-x-1 rounded-md bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-400 border border-amber-500/20">
-            <Clock className="h-3 w-3" />
+          <span className="inline-flex items-center space-x-1.5 rounded-lg bg-[#FEF7EC] px-2.5 py-1 text-xs font-semibold text-[#D99A2B] border border-[#F2B84B]/30">
+            <Clock className="h-3.5 w-3.5" />
             <span>Pending</span>
           </span>
         );
@@ -215,12 +215,12 @@ export const Dashboard: React.FC = () => {
   const getChannelIcon = (channel?: string) => {
     switch (channel) {
       case 'whatsapp':
-        return <MessageSquare className="h-3.5 w-3.5 text-emerald-400" />;
+        return <MessageSquare className="h-3.5 w-3.5 text-[#24B8A5]" />;
       case 'github':
-        return <Github className="h-3.5 w-3.5 text-slate-300" />;
+        return <Github className="h-3.5 w-3.5 text-[#172044]" />;
       case 'email':
       default:
-        return <Mail className="h-3.5 w-3.5 text-red-400" />;
+        return <Mail className="h-3.5 w-3.5 text-[#E66D68]" />;
     }
   };
 
@@ -228,17 +228,17 @@ export const Dashboard: React.FC = () => {
     <div className="flex-1 space-y-8 p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto">
       
       {/* Dashboard Top Title Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-slate-800">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-6 border-b border-[#E8EAF3]">
         <div>
-          <div className="flex items-center space-x-2">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
+          <div className="flex items-center space-x-2.5">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#172044] tracking-tight">
               Intelligence Dashboard
             </h1>
-            <span className="rounded-full bg-indigo-500/10 px-2.5 py-0.5 text-xs font-semibold text-indigo-400 border border-indigo-500/20">
+            <span className="rounded-full bg-[#EEF0FD] px-2.5 py-0.5 text-xs font-bold text-[#5146E5] border border-[#5146E5]/20">
               Phase 1
             </span>
           </div>
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="mt-1 text-sm text-[#64708B]">
             Monitoring active commitments, stakeholder relationships, and communication channels.
           </p>
         </div>
@@ -246,7 +246,7 @@ export const Dashboard: React.FC = () => {
         <div className="flex items-center space-x-3">
           <button
             onClick={handleRefresh}
-            className={`inline-flex items-center space-x-2 rounded-xl border border-slate-800 bg-slate-900/80 px-3 py-2 text-xs font-medium text-slate-300 hover:text-white hover:border-slate-700 transition-colors ${
+            className={`inline-flex items-center space-x-2 rounded-xl border border-[#E8EAF3] bg-white px-3.5 py-2 text-xs font-semibold text-[#172044] hover:text-[#5146E5] hover:border-[#D6D9EB] shadow-subtle transition-all ${
               isRefreshing ? 'animate-spin' : ''
             }`}
           >
@@ -257,64 +257,92 @@ export const Dashboard: React.FC = () => {
       </div>
 
       {/* 4 Stat Overview Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5 shadow-sm hover:border-slate-700 transition-all">
-          <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-medium uppercase tracking-wider">Active Commitments</span>
-            <FileCheck className="h-4 w-4 text-indigo-400" />
+        {/* Card 1: Active Commitments */}
+        <div className="rounded-2xl border border-[#E8EAF3] bg-white p-5 shadow-card hover:shadow-card-hover transition-all duration-200">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#64708B]">
+              Active Commitments
+            </span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#EEF0FD] text-[#5146E5]">
+              <FileCheck className="h-4 w-4" />
+            </div>
           </div>
           <div className="mt-3 flex items-baseline space-x-2">
-            <span className="text-3xl font-bold text-white">14</span>
-            <span className="text-xs text-emerald-400 font-medium">+3 this week</span>
+            <span className="text-3xl font-extrabold text-[#172044]">14</span>
+            <span className="rounded-full bg-[#E6F8F5] px-2 py-0.5 text-xs font-bold text-[#24B8A5]">
+              +3 this week
+            </span>
           </div>
-          <div className="mt-2 text-xs text-slate-400">
+          <div className="mt-2 text-xs text-[#64708B] font-medium">
             4 pending • 8 fulfilled • 2 overdue
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5 shadow-sm hover:border-slate-700 transition-all">
-          <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-medium uppercase tracking-wider">People Graph</span>
-            <GitFork className="h-4 w-4 text-purple-400" />
+        {/* Card 2: People Graph */}
+        <div className="rounded-2xl border border-[#E8EAF3] bg-white p-5 shadow-card hover:shadow-card-hover transition-all duration-200">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#64708B]">
+              People Graph
+            </span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#EEF0FD] text-[#5146E5]">
+              <GitFork className="h-4 w-4" />
+            </div>
           </div>
           <div className="mt-3 flex items-baseline space-x-2">
-            <span className="text-3xl font-bold text-white">28</span>
-            <span className="text-xs text-purple-400 font-medium">Mapped nodes</span>
+            <span className="text-3xl font-extrabold text-[#172044]">28</span>
+            <span className="rounded-full bg-[#EEF0FD] px-2 py-0.5 text-xs font-bold text-[#5146E5]">
+              Mapped nodes
+            </span>
           </div>
-          <div className="mt-2 text-xs text-slate-400">
+          <div className="mt-2 text-xs text-[#64708B] font-medium">
             Average relationship score: 86%
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5 shadow-sm hover:border-slate-700 transition-all">
-          <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-medium uppercase tracking-wider">Monitored Channels</span>
-            <Radio className="h-4 w-4 text-emerald-400" />
+        {/* Card 3: Monitored Channels */}
+        <div className="rounded-2xl border border-[#E8EAF3] bg-white p-5 shadow-card hover:shadow-card-hover transition-all duration-200">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#64708B]">
+              Monitored Channels
+            </span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#E6F8F5] text-[#24B8A5]">
+              <Radio className="h-4 w-4" />
+            </div>
           </div>
           <div className="mt-3 flex items-baseline space-x-2">
-            <span className="text-3xl font-bold text-white">3</span>
-            <span className="text-xs text-slate-400 font-medium">Ready in Roadmap</span>
+            <span className="text-3xl font-extrabold text-[#172044]">3</span>
+            <span className="rounded-full bg-[#E6F8F5] px-2 py-0.5 text-xs font-bold text-[#24B8A5]">
+              Roadmap
+            </span>
           </div>
-          <div className="mt-2 text-xs text-slate-400 flex items-center space-x-1.5">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+          <div className="mt-2 text-xs text-[#64708B] font-medium flex items-center space-x-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#24B8A5]" />
             <span>Gmail • WhatsApp • GitHub</span>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5 shadow-sm hover:border-slate-700 transition-all">
-          <div className="flex items-center justify-between text-slate-400">
-            <span className="text-xs font-medium uppercase tracking-wider">Backend API Health</span>
-            <Database className="h-4 w-4 text-emerald-400" />
+        {/* Card 4: Backend API Health */}
+        <div className="rounded-2xl border border-[#E8EAF3] bg-white p-5 shadow-card hover:shadow-card-hover transition-all duration-200">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#64708B]">
+              Backend Health
+            </span>
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#E6F8F5] text-[#24B8A5]">
+              <Database className="h-4 w-4" />
+            </div>
           </div>
           <div className="mt-3 flex items-baseline space-x-2">
-            <span className="text-2xl font-bold text-emerald-400">
+            <span className="text-2xl font-extrabold text-[#24B8A5]">
               {health?.status === 'ok' ? 'Online' : 'Degraded'}
             </span>
-            <span className="text-xs text-slate-400 font-mono">v0.1.0</span>
+            <span className="rounded-full bg-[#F5F7FF] border border-[#E8EAF3] px-2 py-0.5 text-xs font-mono font-medium text-[#64708B]">
+              v0.1.0
+            </span>
           </div>
-          <div className="mt-2 text-xs text-slate-400 truncate">
-            DB: {health?.database_connected ? 'Connected' : 'Degraded'}
+          <div className="mt-2 text-xs text-[#64708B] font-medium truncate">
+            Database: {health?.database_connected ? 'Connected' : 'Degraded'}
           </div>
         </div>
 
@@ -331,18 +359,18 @@ export const Dashboard: React.FC = () => {
             
             {/* Search Input */}
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
+              <Search className="absolute left-3.5 top-3 h-4 w-4 text-[#64708B]" />
               <input
                 type="text"
                 placeholder="Search commitments or people..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full rounded-xl border border-slate-800 bg-slate-900/60 pl-9 pr-4 py-2 text-xs text-white placeholder-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                className="w-full rounded-xl border border-[#E8EAF3] bg-white pl-10 pr-4 py-2.5 text-xs text-[#172044] placeholder-[#64708B] focus:border-[#5146E5] focus:outline-none focus:ring-2 focus:ring-[#5146E5]/10 shadow-subtle transition-all"
               />
             </div>
 
             {/* Filter Tabs */}
-            <div className="flex items-center space-x-1 rounded-xl border border-slate-800 bg-slate-900/40 p-1">
+            <div className="flex items-center space-x-1 rounded-xl border border-[#E8EAF3] bg-white p-1 shadow-subtle">
               {[
                 { id: 'all', label: 'All' },
                 { id: 'made', label: 'I Promised' },
@@ -352,10 +380,10 @@ export const Dashboard: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setFilterStatus(tab.id)}
-                  className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-colors ${
+                  className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition-all ${
                     filterStatus === tab.id
-                      ? 'bg-indigo-600 text-white'
-                      : 'text-slate-400 hover:text-white'
+                      ? 'bg-[#5146E5] text-white shadow-sm shadow-[#5146E5]/20'
+                      : 'text-[#64708B] hover:text-[#172044] hover:bg-[#F5F7FF]'
                   }`}
                 >
                   {tab.label}
@@ -366,60 +394,60 @@ export const Dashboard: React.FC = () => {
           </div>
 
           {/* Commitments Card List */}
-          <div className="space-y-3">
+          <div className="space-y-3.5">
             {filteredCommitments.length === 0 ? (
-              <div className="rounded-2xl border border-slate-800 bg-slate-900/30 p-8 text-center">
-                <p className="text-sm text-slate-400">No commitments found matching criteria.</p>
+              <div className="rounded-2xl border border-[#E8EAF3] bg-white p-12 text-center shadow-card">
+                <p className="text-sm font-medium text-[#64708B]">No commitments found matching criteria.</p>
               </div>
             ) : (
               filteredCommitments.map((item) => (
                 <div
                   key={item.id}
-                  className="rounded-2xl border border-slate-800 bg-slate-900/40 p-4 hover:border-slate-700 hover:bg-slate-900/70 transition-all duration-200"
+                  className="rounded-2xl border border-[#E8EAF3] bg-white p-5 shadow-card hover:shadow-card-hover hover:border-[#D6D9EB] transition-all duration-200"
                 >
-                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
                     
-                    <div className="space-y-1.5 flex-1">
-                      <div className="flex items-center space-x-2">
+                    <div className="space-y-2 flex-1">
+                      <div className="flex items-center flex-wrap gap-2">
                         {getStatusBadge(item.status)}
-                        <span className="flex items-center space-x-1 rounded-md bg-slate-800 px-2 py-0.5 text-xs text-slate-300">
+                        <span className="flex items-center space-x-1.5 rounded-lg bg-[#F5F7FF] border border-[#E8EAF3] px-2.5 py-1 text-xs font-medium text-[#64708B]">
                           {getChannelIcon(item.channel)}
-                          <span className="capitalize">{item.channel}</span>
+                          <span className="capitalize text-[#172044]">{item.channel}</span>
                         </span>
-                        <span className="text-xs text-slate-500">
-                          {item.commitment_type === 'promise_made' ? 'Made by you' : 'Made to you'}
+                        <span className="text-xs text-[#64708B] font-medium">
+                          {item.commitment_type === 'promise_made' ? '• Made by you' : '• Made to you'}
                         </span>
                       </div>
 
-                      <h3 className="text-sm font-semibold text-white leading-snug">
+                      <h3 className="text-sm font-bold text-[#172044] leading-snug">
                         {item.title}
                       </h3>
 
                       {item.description && (
-                        <p className="text-xs text-slate-400 leading-relaxed">
+                        <p className="text-xs text-[#64708B] leading-relaxed">
                           {item.description}
                         </p>
                       )}
 
                       {/* Evidence Snippet */}
                       {item.evidence_snippets && item.evidence_snippets.length > 0 && (
-                        <div className="mt-2 rounded-lg border border-slate-800/80 bg-slate-950/60 p-2 text-xs font-mono text-slate-300">
-                          <span className="text-indigo-400 font-semibold mr-1">Evidence:</span>
-                          {item.evidence_snippets[0]}
+                        <div className="mt-2.5 rounded-xl border border-[#E8EAF3] border-l-4 border-l-[#5146E5] bg-[#F5F7FF] p-3 text-xs font-mono text-[#172044]">
+                          <span className="text-[#5146E5] font-bold mr-1.5">Evidence:</span>
+                          <span className="italic">{item.evidence_snippets[0]}</span>
                         </div>
                       )}
                     </div>
 
                     {/* Metadata column */}
-                    <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-1 text-right text-xs">
-                      <div className="flex items-center space-x-1 text-slate-300 font-medium">
-                        <User className="h-3 w-3 text-slate-400" />
+                    <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-start gap-1.5 text-right text-xs pt-1 sm:pt-0 border-t sm:border-t-0 border-[#E8EAF3]">
+                      <div className="flex items-center space-x-1.5 text-[#172044] font-semibold">
+                        <User className="h-3.5 w-3.5 text-[#64708B]" />
                         <span>{item.person_name}</span>
                       </div>
-                      <div className="text-[11px] text-slate-500">
-                        Due: {new Date(item.due_date || '').toLocaleDateString()}
+                      <div className="text-[11px] text-[#64708B] font-medium">
+                        Due: {new Date(item.due_date || '').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                       </div>
-                      <div className="inline-flex items-center space-x-1 text-[10px] text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/20">
+                      <div className="inline-flex items-center space-x-1 text-[10px] font-bold text-[#5146E5] bg-[#EEF0FD] border border-[#5146E5]/20 px-2 py-0.5 rounded-md">
                         <Sparkles className="h-2.5 w-2.5" />
                         <span>{Math.round(item.confidence_score * 100)}% Conf.</span>
                       </div>
@@ -437,99 +465,105 @@ export const Dashboard: React.FC = () => {
         <div className="space-y-6">
           
           {/* People in Graph Card */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="rounded-2xl border border-[#E8EAF3] bg-white p-5 shadow-card">
+            <div className="flex items-center justify-between pb-3.5 border-b border-[#E8EAF3]">
               <div className="flex items-center space-x-2">
-                <GitFork className="h-4 w-4 text-indigo-400" />
-                <h3 className="text-sm font-semibold text-white">Relationship Graph</h3>
+                <GitFork className="h-4 w-4 text-[#5146E5]" />
+                <h3 className="text-sm font-bold text-[#172044]">Relationship Graph</h3>
               </div>
-              <span className="text-xs text-slate-500 font-medium">4 Key Contacts</span>
+              <span className="text-xs text-[#64708B] font-semibold">4 Contacts</span>
             </div>
 
             <div className="mt-4 space-y-3">
               {peopleSample.map((person) => (
                 <div
                   key={person.id}
-                  className="flex items-center justify-between rounded-xl border border-slate-800/60 bg-slate-950/50 p-3"
+                  className="flex items-center justify-between rounded-xl border border-[#E8EAF3] bg-[#F5F7FF] p-3 hover:border-[#D6D9EB] transition-all"
                 >
                   <div className="flex items-center space-x-3">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 text-indigo-300 font-bold text-xs border border-indigo-500/30">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#EEF0FD] text-[#5146E5] font-bold text-xs border border-[#5146E5]/20">
                       {person.display_name.slice(0, 2).toUpperCase()}
                     </div>
                     <div>
-                      <div className="text-xs font-semibold text-slate-200">
+                      <div className="text-xs font-bold text-[#172044]">
                         {person.display_name}
                       </div>
-                      <div className="text-[11px] text-slate-400">
+                      <div className="text-[11px] text-[#64708B]">
                         {person.organization}
                       </div>
                     </div>
                   </div>
 
                   <div className="text-right">
-                    <div className="text-xs font-semibold text-emerald-400">
+                    <div className="text-xs font-bold text-[#24B8A5]">
                       {Math.round(person.relationship_score * 100)}%
                     </div>
-                    <div className="text-[10px] text-slate-500">Affinity</div>
+                    <div className="text-[10px] text-[#64708B] font-medium">Affinity</div>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="mt-4 pt-3 border-t border-slate-800/80 text-center">
-              <span className="text-[11px] text-slate-500">
+            <div className="mt-4 pt-3 border-t border-[#E8EAF3] text-center">
+              <span className="text-[11px] text-[#64708B] font-medium">
                 Full dynamic Graph visualizer scheduled for Phase 3
               </span>
             </div>
           </div>
 
           {/* Connected Channels Status Card */}
-          <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-5">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <div className="rounded-2xl border border-[#E8EAF3] bg-white p-5 shadow-card">
+            <div className="flex items-center justify-between pb-3.5 border-b border-[#E8EAF3]">
               <div className="flex items-center space-x-2">
-                <Radio className="h-4 w-4 text-emerald-400" />
-                <h3 className="text-sm font-semibold text-white">Ingestion Channels</h3>
+                <Radio className="h-4 w-4 text-[#24B8A5]" />
+                <h3 className="text-sm font-bold text-[#172044]">Ingestion Channels</h3>
               </div>
-              <span className="text-xs text-slate-500">Phase Roadmap</span>
+              <span className="text-xs text-[#64708B] font-medium">Phase Roadmap</span>
             </div>
 
-            <div className="mt-4 space-y-2.5">
+            <div className="mt-4 space-y-3">
               
-              <div className="flex items-center justify-between rounded-xl border border-slate-800/60 bg-slate-950/50 p-3">
-                <div className="flex items-center space-x-2.5">
-                  <Mail className="h-4 w-4 text-red-400" />
+              <div className="flex items-center justify-between rounded-xl border border-[#E8EAF3] bg-[#F5F7FF] p-3 hover:border-[#D6D9EB] transition-all">
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#FDF1F0] text-[#E66D68]">
+                    <Mail className="h-4 w-4" />
+                  </div>
                   <div>
-                    <div className="text-xs font-medium text-white">Gmail Integration</div>
-                    <div className="text-[10px] text-slate-400">OAuth 2.0 & thread sync</div>
+                    <div className="text-xs font-bold text-[#172044]">Gmail Integration</div>
+                    <div className="text-[10px] text-[#64708B]">OAuth 2.0 & thread sync</div>
                   </div>
                 </div>
-                <span className="rounded bg-indigo-500/10 px-2 py-0.5 text-[10px] font-medium text-indigo-400 border border-indigo-500/20">
+                <span className="rounded-lg bg-[#EEF0FD] px-2.5 py-1 text-[10px] font-bold text-[#5146E5] border border-[#5146E5]/20">
                   Phase 2 Ready
                 </span>
               </div>
 
-              <div className="flex items-center justify-between rounded-xl border border-slate-800/60 bg-slate-950/50 p-3">
-                <div className="flex items-center space-x-2.5">
-                  <MessageSquare className="h-4 w-4 text-emerald-400" />
+              <div className="flex items-center justify-between rounded-xl border border-[#E8EAF3] bg-[#F5F7FF] p-3 hover:border-[#D6D9EB] transition-all">
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#E6F8F5] text-[#24B8A5]">
+                    <MessageSquare className="h-4 w-4" />
+                  </div>
                   <div>
-                    <div className="text-xs font-medium text-white">WhatsApp Chat Sync</div>
-                    <div className="text-[10px] text-slate-400">Chat import & Cloud API</div>
+                    <div className="text-xs font-bold text-[#172044]">WhatsApp Chat Sync</div>
+                    <div className="text-[10px] text-[#64708B]">Chat import & Cloud API</div>
                   </div>
                 </div>
-                <span className="rounded bg-slate-800 px-2 py-0.5 text-[10px] font-medium text-slate-400">
+                <span className="rounded-lg bg-white border border-[#E8EAF3] px-2.5 py-1 text-[10px] font-semibold text-[#64708B]">
                   Phase 3 Planned
                 </span>
               </div>
 
-              <div className="flex items-center justify-between rounded-xl border border-slate-800/60 bg-slate-950/50 p-3">
-                <div className="flex items-center space-x-2.5">
-                  <Github className="h-4 w-4 text-slate-300" />
+              <div className="flex items-center justify-between rounded-xl border border-[#E8EAF3] bg-[#F5F7FF] p-3 hover:border-[#D6D9EB] transition-all">
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white border border-[#E8EAF3] text-[#172044]">
+                    <Github className="h-4 w-4" />
+                  </div>
                   <div>
-                    <div className="text-xs font-medium text-white">GitHub Integration</div>
-                    <div className="text-[10px] text-slate-400">Issues, PR comments & reviews</div>
+                    <div className="text-xs font-bold text-[#172044]">GitHub Integration</div>
+                    <div className="text-[10px] text-[#64708B]">Issues, PRs & code reviews</div>
                   </div>
                 </div>
-                <span className="rounded bg-slate-800 px-2 py-0.5 text-[10px] font-medium text-slate-400">
+                <span className="rounded-lg bg-white border border-[#E8EAF3] px-2.5 py-1 text-[10px] font-semibold text-[#64708B]">
                   Phase 4 Planned
                 </span>
               </div>

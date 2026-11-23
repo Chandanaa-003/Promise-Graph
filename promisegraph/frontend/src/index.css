@@ -3,44 +3,41 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    --color-bg: 7 13 24;
-  }
-  
   body {
-    background-color: #070d18;
-    color: #e2e8f0;
+    background-color: #F5F7FF;
+    color: #172044;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 }
 
-/* Custom Scrollbar */
+/* Elegant Light Theme Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #F5F7FF;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 4px;
+  background: #D2D6E6;
+  border-radius: 9999px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #B5BCD4;
 }
 
-/* Glassmorphism helpers */
-.glass-panel {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+/* Clean Card Styles */
+.saas-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E8EAF3;
+  box-shadow: 0 2px 8px -2px rgba(23, 32, 68, 0.05), 0 1px 4px -1px rgba(23, 32, 68, 0.03);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.glass-panel-hover:hover {
-  background: rgba(30, 41, 59, 0.85);
-  border-color: rgba(99, 102, 241, 0.3);
+.saas-card:hover {
+  border-color: #D6D9EB;
+  box-shadow: 0 8px 24px -4px rgba(81, 70, 229, 0.08), 0 2px 8px -2px rgba(23, 32, 68, 0.04);
 }
