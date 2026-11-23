@@ -17,6 +17,7 @@ interface SidebarProps {
   toggleSidebar: () => void;
   commitmentsCount?: number;
   peopleCount?: number;
+  pendingReviewCount?: number;
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
@@ -25,6 +26,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
   commitmentsCount = 0,
   peopleCount = 0,
+  pendingReviewCount = 0,
 }) => {
   const navItems = [
     {
@@ -33,6 +35,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: LayoutDashboard,
       badge: null,
       desc: 'Platform summary and metrics'
+    },
+    {
+      id: 'review-queue',
+      label: 'AI Review',
+      icon: Sparkles,
+      badge: pendingReviewCount > 0 ? `${pendingReviewCount} new` : null,
+      isAi: true,
+      desc: 'AI extracted suggestions'
     },
     {
       id: 'commitments',
@@ -122,6 +132,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
                         className={`hidden lg:inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold transition-all ${
                           isActive
                             ? 'bg-white/20 text-white'
+                            : item.isAi
+                            ? 'bg-[#FEF8EC] text-[#F2B84B] border border-[#F2B84B]/30'
                             : 'bg-[#F5F7FF] text-[#64708B] border border-[#E8EAF3]'
                         }`}
                       >

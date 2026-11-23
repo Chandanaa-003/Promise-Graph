@@ -46,6 +46,16 @@ class Commitment(Base):
     )  # promise_made, promise_received
     due_date = Column(DateTime(timezone=True), nullable=True)
     confidence_score = Column(Float, default=1.0, nullable=False)
+    review_status = Column(
+        String(50),
+        default="approved",
+        nullable=False,
+        index=True,
+    )  # pending, approved, rejected
+    statement_type = Column(String(50), default="promise", nullable=True)
+    ai_explanation = Column(Text, nullable=True)
+    raw_quote = Column(Text, nullable=True)
+    source_message_id = Column(String(255), nullable=True, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(
         DateTime(timezone=True),

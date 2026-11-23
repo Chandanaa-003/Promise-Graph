@@ -9,6 +9,7 @@ from app.api.v1.endpoints import (
     evidence,
     seed,
     integrations,
+    ai,
 )
 
 api_v1_router = APIRouter()
@@ -22,3 +23,4 @@ api_v1_router.include_router(conversations.router)
 api_v1_router.include_router(evidence.router)
 api_v1_router.include_router(seed.router)
 api_v1_router.include_router(integrations.router)
+api_v1_router.include_router(ai.router)

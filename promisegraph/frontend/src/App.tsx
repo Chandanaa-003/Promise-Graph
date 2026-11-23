@@ -11,6 +11,7 @@ import { RelationshipGraphView } from './components/RelationshipGraphView';
 import { SourcesView } from './components/SourcesView';
 import { EvidenceView } from './components/EvidenceView';
 import { SettingsView } from './components/SettingsView';
+import { ReviewQueueView } from './components/ReviewQueueView';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 import {
@@ -18,6 +19,7 @@ import {
   fetchCommitments,
   fetchPeople,
   fetchEvidence,
+  fetchReviewQueue,
   createCommitment,
   updateCommitment,
   deleteCommitment,
@@ -36,6 +38,7 @@ const AppContent: React.FC = () => {
   const [commitments, setCommitments] = useState<Commitment[]>([]);
   const [people, setPeople] = useState<Person[]>([]);
   const [evidenceList, setEvidenceList] = useState<Evidence[]>([]);
+  const [pendingReviewCount, setPendingReviewCount] = useState<number>(0);
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -53,16 +56,18 @@ const AppContent: React.FC = () => {
     }
     setLoading(true);
     try {
-      const [h, comms, ppl, ev] = await Promise.all([
+      const [h, comms, ppl, ev, q] = await Promise.all([
         fetchHealth(),
         fetchCommitments(),
         fetchPeople(),
         fetchEvidence(),
+        fetchReviewQueue().catch(() => []),
       ]);
       setHealth(h);
       setCommitments(comms);
       setPeople(ppl);
       setEvidenceList(ev);
+      setPendingReviewCount(q.length);
     } catch (err) {
       console.error('Error loading data for authenticated user:', err);
     } finally {
@@ -86,6 +91,7 @@ const AppContent: React.FC = () => {
       setCommitments([]);
       setPeople([]);
       setEvidenceList([]);
+      setPendingReviewCount(0);
     }
   }, [isAuthenticated, loadData]);
 
@@ -189,6 +195,7 @@ const AppContent: React.FC = () => {
               toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
               commitmentsCount={commitments.length}
               peopleCount={people.length}
+              pendingReviewCount={pendingReviewCount}
             />
 
             {/* Dynamic Content Area based on Active Tab */}
@@ -207,6 +214,13 @@ const AppContent: React.FC = () => {
                     setSelectedCommitment(comm);
                     setActiveTab('commitments');
                   }}
+                />
+              )}
+
+              {activeTab === 'review-queue' && (
+                <ReviewQueueView
+                  people={people}
+                  onCommitmentApproved={loadData}
                 />
               )}
 

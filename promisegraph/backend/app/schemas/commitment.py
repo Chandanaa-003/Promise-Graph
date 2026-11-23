@@ -10,6 +10,11 @@ class CommitmentBase(BaseModel):
     commitment_type: str = "promise_made"  # promise_made, promise_received
     due_date: Optional[datetime] = None
     confidence_score: float = 1.0
+    review_status: str = "approved"  # pending, approved, rejected
+    statement_type: Optional[str] = "promise"
+    ai_explanation: Optional[str] = None
+    raw_quote: Optional[str] = None
+    source_message_id: Optional[str] = None
 
 
 class CommitmentCreate(CommitmentBase):
@@ -27,6 +32,11 @@ class CommitmentUpdate(BaseModel):
     due_date: Optional[datetime] = None
     confidence_score: Optional[float] = None
     person_id: Optional[str] = None
+    review_status: Optional[str] = None
+    statement_type: Optional[str] = None
+    ai_explanation: Optional[str] = None
+    raw_quote: Optional[str] = None
+    source_message_id: Optional[str] = None
 
 
 class CommitmentRead(CommitmentBase):

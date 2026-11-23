@@ -64,9 +64,48 @@ export interface Commitment {
   channel?: ChannelType;
   due_date?: string;
   confidence_score: number;
+  review_status?: 'pending' | 'approved' | 'rejected';
+  statement_type?: string;
+  ai_explanation?: string;
+  raw_quote?: string;
+  source_message_id?: string;
   evidence_snippets?: string[];
   created_at: string;
   updated_at: string;
+}
+
+export interface AIStats {
+  total_commitments: number;
+  approved_count: number;
+  pending_review_count: number;
+  rejected_count: number;
+  ai_provider: string;
+  ollama_model: string;
+  auto_approve_threshold: number;
+  review_queue_threshold: number;
+}
+
+export interface ExtractedItem {
+  action: string;
+  promiser_name: string;
+  recipient_name?: string;
+  statement_type: string;
+  raw_deadline_phrase?: string;
+  normalized_deadline?: string;
+  confidence_score: number;
+  supporting_quote: string;
+  explanation: string;
+  commitment_type: string;
+}
+
+export interface ExtractionBatchSummary {
+  analyzed_messages_count: number;
+  extracted_items_count: number;
+  auto_approved_count: number;
+  review_queue_count: number;
+  skipped_count: number;
+  duplicates_skipped: number;
+  created_commitments: Commitment[];
 }
 
 export interface ConnectedAccount {

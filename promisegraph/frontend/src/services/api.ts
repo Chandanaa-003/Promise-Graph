@@ -13,6 +13,9 @@ import {
   WhatsAppChat,
   GitHubRepo,
   UnifiedMessage,
+  AIStats,
+  ExtractedItem,
+  ExtractionBatchSummary,
 } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
@@ -503,4 +506,91 @@ export async function fetchUnifiedMessages(params?: {
   } catch {
     return [];
   }
+}
+
+// ----------------------------------------------------
+// AI Commitment Intelligence API
+// ----------------------------------------------------
+
+export async function fetchReviewQueue(skip = 0, limit = 50): Promise<Commitment[]> {
+  const url = `${API_BASE}/api/v1/ai/review-queue?skip=${skip}&limit=${limit}`;
+  try {
+    const res = await fetch(url, { headers: getAuthHeaders(), credentials: 'include' });
+    if (!res.ok) return [];
+    return await res.json();
+  } catch (err) {
+    console.warn('API fetchReviewQueue error:', err);
+    return [];
+  }
+}
+
+export async function reviewCommitment(
+  commitmentId: string,
+  payload: {
+    action: 'approve' | 'reject' | 'edit';
+    title?: string;
+    due_date?: string;
+    person_id?: string;
+    description?: string;
+  }
+): Promise<Commitment> {
+  const url = `${API_BASE}/api/v1/ai/review/${commitmentId}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify(payload),
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to review commitment suggestion');
+  }
+  return await res.json();
+}
+
+export async function extractConversation(conversationId: string): Promise<ExtractionBatchSummary> {
+  const url = `${API_BASE}/api/v1/ai/extract-conversation/${conversationId}`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to extract commitments from conversation');
+  }
+  return await res.json();
+}
+
+export async function extractFromText(
+  text: string,
+  senderName?: string
+): Promise<{
+  items: ExtractedItem[];
+  persisted_commitments: Commitment[];
+  auto_approved_count: number;
+  review_queue_count: number;
+  duplicates_skipped: number;
+}> {
+  const url = `${API_BASE}/api/v1/ai/extract`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
+    body: JSON.stringify({ text, sender_name: senderName }),
+    credentials: 'include',
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to analyze text with AI');
+  }
+  return await res.json();
+}
+
+export async function fetchAIStats(): Promise<AIStats> {
+  const url = `${API_BASE}/api/v1/ai/stats`;
+  const res = await fetch(url, { headers: getAuthHeaders(), credentials: 'include' });
+  if (!res.ok) {
+    throw new Error('Failed to fetch AI stats');
+  }
+  return await res.json();
 }

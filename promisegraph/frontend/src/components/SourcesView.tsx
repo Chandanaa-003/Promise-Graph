@@ -34,6 +34,7 @@ import {
   syncGitHubIssues,
   disconnectGitHub,
   fetchUnifiedMessages,
+  extractConversation,
 } from '../services/api';
 import { ConnectedAccount, WhatsAppChat, GitHubRepo, UnifiedMessage } from '../types';
 
@@ -53,6 +54,7 @@ export const SourcesView: React.FC = () => {
   // WhatsApp State
   const [whatsappChats, setWhatsappChats] = useState<WhatsAppChat[]>([]);
   const [uploadingChat, setUploadingChat] = useState(false);
+  const [extractingChatId, setExtractingChatId] = useState<string | null>(null);
   const [chatFile, setChatFile] = useState<File | null>(null);
   const [chatTitle, setChatTitle] = useState('');
 
@@ -232,6 +234,22 @@ I will complete the schema review and send you the finalized document by tomorro
       if (activeTab === 'messages') await loadMessages();
     } catch (err: any) {
       setBanner({ type: 'error', text: err?.message || 'Failed to delete chat.' });
+    }
+  };
+
+  const handleExtractFromChat = async (conversationId: string, title: string) => {
+    setExtractingChatId(conversationId);
+    setBanner(null);
+    try {
+      const res = await extractConversation(conversationId);
+      setBanner({
+        type: 'success',
+        text: `AI extracted ${res.auto_approved_count + res.review_queue_count} commitments from "${title}" (${res.auto_approved_count} auto-approved, ${res.review_queue_count} in AI review queue).`,
+      });
+    } catch (err: any) {
+      setBanner({ type: 'error', text: err?.message || 'Failed to extract commitments with AI' });
+    } finally {
+      setExtractingChatId(null);
     }
   };
 
@@ -557,13 +575,24 @@ I will complete the schema review and send you the finalized document by tomorro
                       <p className="font-semibold text-[#172044] truncate text-[11px]">{chat.title}</p>
                       <p className="text-[10px] text-[#64708B]">{chat.message_count} msgs</p>
                     </div>
-                    <button
-                      onClick={() => handleDeleteChat(chat.id, chat.title)}
-                      className="p-1 text-[#64708B] hover:text-[#E66D68] transition-colors"
-                      title="Delete imported chat"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    <div className="flex items-center space-x-1.5 flex-shrink-0">
+                      <button
+                        onClick={() => handleExtractFromChat(chat.id, chat.title)}
+                        disabled={extractingChatId === chat.id}
+                        className="px-2 py-1 rounded-lg bg-[#5146E5] text-[10px] font-bold text-white hover:bg-[#4338CA] transition-all flex items-center space-x-1 disabled:opacity-50"
+                        title="Extract promises and commitments with AI"
+                      >
+                        <Sparkles className={`h-2.5 w-2.5 ${extractingChatId === chat.id ? 'animate-spin' : ''}`} />
+                        <span>{extractingChatId === chat.id ? 'Analyzing...' : 'AI Extract'}</span>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteChat(chat.id, chat.title)}
+                        className="p-1 text-[#64708B] hover:text-[#E66D68] transition-colors"
+                        title="Delete imported chat"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

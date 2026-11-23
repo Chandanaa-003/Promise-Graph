@@ -49,6 +49,13 @@ class Settings(BaseSettings):
     # Database Configuration
     DATABASE_URL: str = "sqlite:///./promisegraph.db"
 
+    # AI Commitment Extraction Configuration
+    OLLAMA_BASE_URL: str = "http://localhost:11434"
+    OLLAMA_MODEL: str = "qwen2.5:3b"
+    AI_CONFIDENCE_THRESHOLD_AUTO_APPROVE: float = 0.85
+    AI_CONFIDENCE_THRESHOLD_REVIEW_QUEUE: float = 0.50
+    AI_PROVIDER: str = "ollama"
+
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def assemble_cors_origins(cls, v: Union[str, List[str]]) -> List[str]:

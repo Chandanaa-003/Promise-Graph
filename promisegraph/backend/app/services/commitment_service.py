@@ -17,6 +17,7 @@ class CommitmentService:
         db: Session,
         user_id: Optional[str] = None,
         status: Optional[str] = None,
+        review_status: Optional[str] = "approved",
         skip: int = 0,
         limit: int = 100,
     ) -> List[Commitment]:
@@ -25,6 +26,8 @@ class CommitmentService:
             query = query.filter(Commitment.user_id == user_id)
         if status:
             query = query.filter(Commitment.status == status)
+        if review_status:
+            query = query.filter(Commitment.review_status == review_status)
         return query.order_by(Commitment.created_at.desc()).offset(skip).limit(limit).all()
 
     @staticmethod
@@ -52,6 +55,11 @@ class CommitmentService:
             commitment_type=commitment_in.commitment_type,
             due_date=commitment_in.due_date,
             confidence_score=commitment_in.confidence_score,
+            review_status=commitment_in.review_status or "approved",
+            statement_type=commitment_in.statement_type or "promise",
+            ai_explanation=commitment_in.ai_explanation,
+            raw_quote=commitment_in.raw_quote,
+            source_message_id=commitment_in.source_message_id,
         )
         db.add(commitment)
         db.commit()

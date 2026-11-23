@@ -13,14 +13,22 @@ router = APIRouter(prefix="/commitments", tags=["Commitments"])
 @router.get("", response_model=List[CommitmentRead])
 def list_commitments(
     status_filter: Optional[str] = None,
+    review_status: Optional[str] = "approved",
     skip: int = 0,
     limit: int = 100,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ) -> List[CommitmentRead]:
     """List tracked commitments belonging strictly to the authenticated user."""
+    # When review_status is "all", pass None to bypass filtering
+    r_status = None if review_status == "all" else review_status
     return CommitmentService.get_all(
-        db, user_id=current_user.id, status=status_filter, skip=skip, limit=limit
+        db,
+        user_id=current_user.id,
+        status=status_filter,
+        review_status=r_status,
+        skip=skip,
+        limit=limit,
     )
 
 
